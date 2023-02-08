@@ -1,7 +1,8 @@
-package com.KoreaIT.java;
+package com.KoreaIT.java.util;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
 
 public class Util {
 	/** 현재 날짜 시간 String */
