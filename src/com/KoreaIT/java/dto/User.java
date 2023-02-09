@@ -7,7 +7,7 @@ public class User extends Dto {
 	public String userName;
 	
 		
-	public User(int id, String userID, String userPW, String userName, String regDate, String name) {
+	public User(int id, String regDate, String regDate1, String userID, String userPW, String userName) {
 		this.userID = userID;
 		this.userPW = userPW;
 		this.userName= userName;

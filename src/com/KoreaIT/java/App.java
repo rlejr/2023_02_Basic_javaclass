@@ -1,32 +1,26 @@
 package com.KoreaIT.java;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 
 import com.KoreaIT.java.controller.ArticleController;
+import com.KoreaIT.java.controller.Controller;
 import com.KoreaIT.java.controller.UserController;
-import com.KoreaIT.java.dto.Article;
-import com.KoreaIT.java.dto.User;
-import com.KoreaIT.java.util.Util;
 
 public class App {
-	public static List<Article> articles;
-	public static List<User> users;
 
-	static {
-		articles = new ArrayList<>();
-		users = new ArrayList<>();
+	App() {
+
 	}
 
 	public void run() {
 		System.out.println("==프로그램 시작==");
 
-		makeTestData();
-
 		Scanner sc = new Scanner(System.in);
-		UserController userController = new UserController(users, sc);
-		ArticleController articlecontroller = new ArticleController(articles, sc);
+		UserController userController = new UserController(sc);
+		ArticleController articlecontroller = new ArticleController(sc);
+
+		articlecontroller.makeTestData();
+		userController.makeTestData();
 
 		while (true) {
 
@@ -41,31 +35,26 @@ public class App {
 			if (command.equals("system exit")) {
 				break;
 			}
-			if (command.equals("member join")) {
+			String[] commandBits = command.split(" ");
 
-				userController.doJoin();
-			} else if (command.equals("article list")) {
-				articlecontroller.showList();
+			if (commandBits.length == 1) {
+				System.out.println("명령어 확인 후 다시 입력해주세요");
+				continue;
+			}
+			String controllerName = commandBits[0];
+			String actionMethodName = commandBits[1];
 
+			Controller controller = null;
+			if (controllerName.equals("article")) {
+				controller = articlecontroller;
+			} else if (controllerName.equals("member")) {
+				controller = userController;
+			} else {
+				System.out.println("존재하지 않는 명령어 입니다.");
+				continue;
 			}
 
-			else if (command.equals("article write")) {
-				articlecontroller.doWrite();
-
-			} else if (command.startsWith("article detail ")) {
-				articlecontroller.showDetail(command);
-
-			} else if (command.startsWith("article modify ")) {
-				articlecontroller.doModify(command);
-
-			} else if (command.startsWith("article delete ")) {
-				articlecontroller.doDelete(command);
-
-			}
-
-			else {
-				System.out.println("존재하지 않는 명령어입니다");
-			}
+			controller.doAction(command, actionMethodName);
 
 		}
 
@@ -75,11 +64,4 @@ public class App {
 
 	}
 
-	public static void makeTestData() {
-		System.out.println("테스트를 위한 데이터를 생성합니다");
-
-		articles.add(new Article(1, Util.getNowDateStr(), Util.getNowDateStr(), "제목1", "내용1", 11));
-		articles.add(new Article(2, Util.getNowDateStr(), Util.getNowDateStr(), "제목2", "내용2", 22));
-		articles.add(new Article(3, Util.getNowDateStr(), Util.getNowDateStr(), "제목3", "내용3", 33));
-	}
 }
