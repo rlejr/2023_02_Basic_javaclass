@@ -1,10 +1,11 @@
 package com.KoreaIT.java.controller;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import com.KoreaIT.java.container.Container;
 import com.KoreaIT.java.dto.Article;
+import com.KoreaIT.java.dto.User;
 import com.KoreaIT.java.util.Util;
 
 public class ArticleController extends Controller {
@@ -15,7 +16,7 @@ public class ArticleController extends Controller {
 	private String actionMethodName;
 
 	public ArticleController(Scanner sc) {
-		this.articles = new ArrayList<>();
+		this.articles = Container.articleDao.articles;
 		this.sc = sc;
 	}
 
@@ -25,11 +26,7 @@ public class ArticleController extends Controller {
 
 		switch (actionMethodName) {
 		case "write":
-			if (userUseing == 1) {
-				doWrite();
-				break;
-			}
-			System.out.println("로그인 후 이용해주세요!");
+			doWrite();
 			break;
 
 		case "list":
@@ -41,20 +38,13 @@ public class ArticleController extends Controller {
 			break;
 
 		case "modify":
-			if (userUseing == 1) {
 
-				doModify(command);
-				break;
-			}
-			System.out.println("로그인 후 이용해주세요!");
+			doModify(command);
 			break;
 
 		case "delete":
-			if (userUseing == 1) {
-				doDelete(command);
-				break;
-			}
-			System.out.println("로그인 후 이용해주세요!");
+
+			doDelete(command);
 			break;
 
 		default:
@@ -67,9 +57,9 @@ public class ArticleController extends Controller {
 	public void makeTestData() {
 		System.out.println("테스트를 위한 데이터를 생성합니다");
 
-		articles.add(new Article(1, Util.getNowDateStr(), Util.getNowDateStr(), 1,"관리자", "제목1", "내용1", 11));
-		articles.add(new Article(2, Util.getNowDateStr(), Util.getNowDateStr(), 2,"김기덕1", "제목2", "내용2", 22));
-		articles.add(new Article(3, Util.getNowDateStr(), Util.getNowDateStr(), 3,"김기덕2","제목3", "내용3", 33));
+		articles.add(new Article(1, Util.getNowDateStr(), Util.getNowDateStr(), 1, "관리자", "제목1", "내용1", 11));
+		articles.add(new Article(2, Util.getNowDateStr(), Util.getNowDateStr(), 2, "김기덕1", "제목2", "내용2", 22));
+		articles.add(new Article(3, Util.getNowDateStr(), Util.getNowDateStr(), 3, "김기덕2", "제목3", "내용3", 33));
 	}
 
 	public void showList() {
@@ -81,15 +71,29 @@ public class ArticleController extends Controller {
 			String tempTitle = null;
 			for (int i = articles.size() - 1; i >= 0; i--) {
 				Article article = articles.get(i);
+				String writerName = null;
+
+				List<User> users = Container.userDao.users;
+
+				for (User user : users) {
+					if (article.userId == user.id) {
+						writerName = user.userName;
+						break;
+					}
+				}
+				
+				
+				
+				
 				if (article.title.length() > 4) {
 					tempTitle = article.title.substring(0, 4);
-					System.out.printf("%4d	/    %6s    /   %4d   /%4d(%4s)\n", article.id, tempTitle + "...", article.hit,
-							article.userId,article.userName);
+					System.out.printf("%4d	/    %6s    /   %4d   /(%4s)\n", article.id, tempTitle + "...",
+							article.hit, article.userId, writerName);
 					continue;
 				}
 
-				System.out.printf("%4d	/    %6s    /   %4d   / %4d(%4s)\n", article.id, article.title, article.hit,
-						article.userId,article.userName);
+				System.out.printf("%4d	/    %6s    /   %4d   / (%4s)\n", article.id, article.title, article.hit,
+						article.userId, writerName);
 			}
 		}
 
@@ -104,7 +108,7 @@ public class ArticleController extends Controller {
 		System.out.printf("내용 : ");
 		String body = sc.nextLine();
 
-		Article article = new Article(id, regDate, regDate, loginedUser.id,loginedUser.userName, title, body);
+		Article article = new Article(id, regDate, regDate, loginedUser.id, loginedUser.userName, title, body);
 		articles.add(article);
 
 		System.out.printf("%d번 글이 생성 되었습니다\n", id);
@@ -150,20 +154,19 @@ public class ArticleController extends Controller {
 				System.out.printf("%d번 게시물은 존재하지 않습니다.\n", id);
 				return;
 			}
-			if(foundArticle.userId == loginedUser.id) {
-			System.out.printf("제목 : ");
-			String title = sc.nextLine();
-			System.out.printf("내용 : ");
-			String body = sc.nextLine();
-			String updateDate = Util.getNowDateStr();
+			if (foundArticle.userId == loginedUser.id) {
+				System.out.printf("제목 : ");
+				String title = sc.nextLine();
+				System.out.printf("내용 : ");
+				String body = sc.nextLine();
+				String updateDate = Util.getNowDateStr();
 
-			foundArticle.title = title;
-			foundArticle.body = body;
-			foundArticle.updateDate = updateDate;
+				foundArticle.title = title;
+				foundArticle.body = body;
+				foundArticle.updateDate = updateDate;
 
-			System.out.printf("%d번 게시물을 수정했습니다\n", id);
-		}
-			else {
+				System.out.printf("%d번 게시물을 수정했습니다\n", id);
+			} else {
 				System.out.println("작성자만 수정할 수 있습니다!");
 			}
 		} else {
@@ -183,11 +186,10 @@ public class ArticleController extends Controller {
 				return;
 			}
 			Article foundArticle = getArticleById(id);
-			if(foundArticle.userId == loginedUser.id) {
-			articles.remove(foundIndex);
-			System.out.printf("%d번 게시물을 삭제했습니다\n", id);
-			}
-			else {
+			if (foundArticle.userId == loginedUser.id) {
+				articles.remove(foundIndex);
+				System.out.printf("%d번 게시물을 삭제했습니다\n", id);
+			} else {
 				System.out.println("작성자만 삭제할수 있습니다");
 			}
 

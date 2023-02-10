@@ -1,9 +1,9 @@
 package com.KoreaIT.java.controller;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import com.KoreaIT.java.container.Container;
 import com.KoreaIT.java.dto.User;
 import com.KoreaIT.java.util.Util;
 
@@ -17,7 +17,7 @@ public class UserController extends Controller {
 	private String loginPw1;
 
 	public UserController(Scanner sc) {
-		this.users = new ArrayList<>();
+		this.users = Container.userDao.users;
 		this.sc = sc;
 	}
 
@@ -43,43 +43,44 @@ public class UserController extends Controller {
 	}
 
 	public void doLogout() {
-		if (userUseing == 1) {
-			userUseing = 0;
-			loginedUser = null;
-			System.out.println("정상적으로 로그아웃 되었습니다.");
-		} else {
-			System.out.println("로그인이 되어있지 않습니다!");
-		}
+
+		userUseing = 0;
+		loginedUser = null;
+		System.out.println("정상적으로 로그아웃 되었습니다.");
 
 	}
 
 	public void doLogin() {
-		if (userUseing == 0) {
-			while (true) {
-				System.out.printf("로그인 아이디 : ");
-				loginId1 = sc.nextLine();
-				System.out.printf("로그인 비밀번호 : ");
-				loginPw1 = sc.nextLine();
 
-				User user = getUserByLoginId(loginId1);
+		while (true) {
+			if (Controller.idTryStack == 5 || Controller.pwTryStack == 5) {
 
-				if (user == null) {
-					System.out.println("해당 회원은 존재하지 않습니다.");
-					continue;
-				}
-				if (user.userLoginPW.equals(loginPw1) == false) {
-					System.out.println("비밀번호를 확인해주세요");
-					continue;
-				}
-				loginedUser = user;
-				System.out.printf("로그인 성공 %s님 환영합니다.\n", loginedUser.userName);
-				userUseing = 1;
 				break;
 			}
 
-		} else {
-			System.out.println("사용자가 로그인 중입니다. 로그아웃 해주세요!");
+			System.out.printf("로그인 아이디 : ");
+			loginId1 = sc.nextLine();
+			System.out.printf("로그인 비밀번호 : ");
+			loginPw1 = sc.nextLine();
+
+			User user = getUserByLoginId(loginId1);
+
+			if (user == null) {
+				System.out.println("해당 회원은 존재하지 않습니다.");
+				idTryStack++;
+				continue;
+			}
+			if (user.userLoginPW.equals(loginPw1) == false) {
+				System.out.println("비밀번호를 확인해주세요");
+				pwTryStack++;
+				continue;
+			}
+			loginedUser = user;
+			System.out.printf("로그인 성공 %s님 환영합니다.\n", loginedUser.userName);
+			userUseing = 1;
+			break;
 		}
+
 	}
 
 	public void doJoin() {
@@ -118,14 +119,21 @@ public class UserController extends Controller {
 
 			break;
 		}
-		System.out.printf("이름 : ");
-		String name = sc.nextLine();
+		while (true) {
+			System.out.printf("이름 : ");
+			String name = sc.nextLine();
+			if (name.length() < 1) {
+				System.out.println("이름을 입력해주세요.");
+				continue;
 
-		User user = new User(id, regDate, regDate, loginId, loginPw, name);
-		users.add(user);
+			}
 
-		System.out.printf("%d번 회원이 가입 되었습니다\n", id);
+			User user = new User(id, regDate, regDate, loginId, loginPw, name);
+			users.add(user);
 
+			System.out.printf("%d번 회원이 가입 되었습니다\n", id);
+			break;
+		}
 	}
 
 	private User getUserByLoginId(String loginId) {

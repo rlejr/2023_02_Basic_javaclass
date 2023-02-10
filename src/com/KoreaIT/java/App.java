@@ -14,6 +14,8 @@ public class App {
 
 	public void run() {
 		System.out.println("==프로그램 시작==");
+		Controller.idTryStack = 0;
+		Controller.pwTryStack = 0;
 
 		Scanner sc = new Scanner(System.in);
 		UserController userController = new UserController(sc);
@@ -24,6 +26,11 @@ public class App {
 
 		while (true) {
 
+			if (Controller.idTryStack == 5 || Controller.pwTryStack == 5) {
+				System.out.println("==로그인 횟수 초과 프로그램 강제종료==");
+				
+				break;
+			}
 			System.out.printf("명령어 ) ");
 			String command = sc.nextLine().trim();
 
@@ -33,6 +40,7 @@ public class App {
 			}
 
 			if (command.equals("system exit")) {
+				
 				break;
 			}
 			String[] commandBits = command.split(" ");
@@ -54,6 +62,29 @@ public class App {
 				continue;
 			}
 
+			String actionName = controllerName + "/" + actionMethodName;
+
+			switch (actionName) {
+			case "article/write":
+			case "article/delete":
+			case "article/modify":
+			case "member/logout":
+				if (Controller.userUseing == 0) {
+					System.out.println("로그인후 이용해주세요");
+					continue;
+				}
+				break;
+			}
+			switch (actionName) {
+			case "member/login":
+			case "member/join":
+				if (Controller.userUseing == 1) {
+					System.out.println("사용자가 로그인 중입니다. 로그아웃 해주세요!");
+					continue;
+				}
+
+				break;
+			}
 			controller.doAction(command, actionMethodName);
 
 		}
