@@ -15,9 +15,7 @@ public class UserController extends Controller {
 	private String actionMethodName;
 	private String loginId1;
 	private String loginPw1;
-	
-	
-	
+
 	public UserController(Scanner sc) {
 		this.users = new ArrayList<>();
 		this.sc = sc;
@@ -49,11 +47,10 @@ public class UserController extends Controller {
 			userUseing = 0;
 			loginedUser = null;
 			System.out.println("정상적으로 로그아웃 되었습니다.");
-		}
-		else {
+		} else {
 			System.out.println("로그인이 되어있지 않습니다!");
 		}
-		
+
 	}
 
 	public void doLogin() {
@@ -65,13 +62,12 @@ public class UserController extends Controller {
 				loginPw1 = sc.nextLine();
 
 				User user = getUserByLoginId(loginId1);
-				
 
 				if (user == null) {
 					System.out.println("해당 회원은 존재하지 않습니다.");
 					continue;
 				}
-				if (user.userPW.equals(loginPw1) == false) {
+				if (user.userLoginPW.equals(loginPw1) == false) {
 					System.out.println("비밀번호를 확인해주세요");
 					continue;
 				}
@@ -80,19 +76,10 @@ public class UserController extends Controller {
 				userUseing = 1;
 				break;
 			}
-			
-			
-		}
-		else {
+
+		} else {
 			System.out.println("사용자가 로그인 중입니다. 로그아웃 해주세요!");
 		}
-	}
-	public void makeTestData() {
-		System.out.println("테스트를 위한 데이터를 생성합니다");
-
-		users.add(new User(1,  Util.getNowDateStr(), Util.getNowDateStr(), "id1", "id1","김기덕1"));
-		users.add(new User(2,  Util.getNowDateStr(), Util.getNowDateStr(), "id2", "id2","김기덕2"));
-		users.add(new User(3,  Util.getNowDateStr(), Util.getNowDateStr(), "id3", "id3","김기덕3"));
 	}
 
 	public void doJoin() {
@@ -103,8 +90,12 @@ public class UserController extends Controller {
 		while (true) {
 			System.out.printf("로그인 아이디 : ");
 			loginId = sc.nextLine();
+			if (loginId.length() < 5) {
+				System.out.println("아이디는 5글자 이상입니다.");
+				continue;
+			}
 
-			if (isJoinableLoginId(loginId) == false) {
+			else if (isJoinableLoginId(loginId) == false) {
 				System.out.println("이미 사용중인 아이디입니다.");
 				continue;
 			}
@@ -160,12 +151,20 @@ public class UserController extends Controller {
 	public int getMemberIndexByLoginId(String loginId) {
 		int i = 0;
 		for (User user : users) {
-			if (user.userID.equals(loginId)) {
+			if (user.userLoginID.equals(loginId)) {
 				return i;
 			}
 			i++;
 		}
 		return -1;
+	}
+
+	public void makeTestData() {
+		System.out.println("테스트를 위한 데이터를 생성합니다");
+
+		users.add(new User(1, Util.getNowDateStr(), Util.getNowDateStr(), "admin", "admin", "관리자"));
+		users.add(new User(2, Util.getNowDateStr(), Util.getNowDateStr(), "id2", "id2", "김기덕2"));
+		users.add(new User(3, Util.getNowDateStr(), Util.getNowDateStr(), "id3", "id3", "김기덕3"));
 	}
 
 }
